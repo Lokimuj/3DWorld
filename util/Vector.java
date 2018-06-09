@@ -48,6 +48,10 @@ public class Vector {
         return vector[i];
     }
 
+    public int getDimensions() {
+        return dimensions;
+    }
+
     public void scalarMultiplyThis(double scalar){
         for(int i = 0; i< dimensions; i++){
             vector[i]*=scalar;
