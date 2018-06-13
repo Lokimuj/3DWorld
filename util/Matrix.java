@@ -1,5 +1,7 @@
 package util;
 
+import org.omg.CORBA.MARSHAL;
+
 public class Matrix {
     private double[][] matrix;
     int rows, cols;
@@ -19,6 +21,17 @@ public class Matrix {
         }
         matrix = new double[dimensions][dimensions];
         this.rows = this.cols = dimensions;
+    }
+
+    public Matrix(Matrix other){
+        this.rows = other.rows;
+        this.cols = other.cols;
+        this.matrix  = new double[rows][cols];
+        for(int i = 0;i<rows;i++){
+            for(int j = 0; j<cols; j++){
+                this.matrix[i][j] = other.matrix[i][j];
+            }
+        }
     }
 
     public static Matrix constructByRows(Vector... vectors){
@@ -57,6 +70,121 @@ public class Matrix {
             }
         }
         return matrix;
+    }
+
+
+    public static Matrix constructByXYRotation(double theta){
+        Matrix result =  new Matrix(3);
+        result.matrix[0][0] = Math.cos(theta);
+        result.matrix[0][1] = -1*Math.sin(theta);
+        result.matrix[1][0] = Math.sin(theta);
+        result.matrix[1][1] = Math.cos(theta);
+        result.matrix[2][2] = 1;
+        return result;
+    }
+    public static Matrix constructByYZRotation(double theta){
+        Matrix result =  new Matrix(3);
+        result.matrix[1][1] = Math.cos(theta);
+        result.matrix[1][2] = -1*Math.sin(theta);
+        result.matrix[2][1] = Math.sin(theta);
+        result.matrix[2][2] = Math.cos(theta);
+        result.matrix[0][0] = 1;
+        return result;
+    }
+    public static Matrix constructByXZRotation(double theta){
+        Matrix result =  new Matrix(3);
+        result.matrix[0][0] = Math.cos(theta);
+        result.matrix[0][2] = -1*Math.sin(theta);
+        result.matrix[2][0] = Math.sin(theta);
+        result.matrix[2][2] = Math.cos(theta);
+        result.matrix[1][1] = 1;
+        return result;
+    }
+
+    public void addToThis(Matrix other){
+        equivalentMatrixCheck(this,other);
+        for(int i = 0; i<this.rows; i++){
+            for(int j = 0;j<this.cols;j++){
+                this.matrix[i][j]+=other.matrix[i][j];
+            }
+        }
+    }
+
+    public Matrix add(Matrix other){
+        Matrix result = new Matrix(this);
+        result.addToThis(other);
+        return result;
+    }
+
+    public void scalarMultiplyThis(double scalar){
+        for(int i = 0; i<this.rows; i++){
+            for(int j = 0; j<this.cols; j++){
+                matrix[i][j]*=scalar;
+            }
+        }
+    }
+
+    public Matrix scalarMultiple(double scalar){
+        Matrix result = new Matrix(this);
+        result.scalarMultiplyThis(scalar);
+        return result;
+    }
+
+    public void subFromThis(Matrix other){
+        equivalentMatrixCheck(this,other);
+        for(int i = 0;i<this.rows;i++){
+            for(int j = 0 ;j<this.cols;j++){
+                this.matrix[i][j]-=other.matrix[i][j];
+            }
+        }
+    }
+
+    public Matrix sub(Matrix other){
+        Matrix result = new Matrix(this);
+        result.subFromThis(other);
+        return result;
+    }
+
+    public Matrix leftMultiply(Matrix other){
+        colRowEquivalenceCheck(this,other);
+        Matrix matrix = new Matrix(this.rows,other.cols);
+        for(int i = 0;i<this.rows;i++){
+            for(int j = 0;j<other.cols;j++){
+                for(int k = 0; k<other.rows; k++){
+                    matrix.matrix[i][j]+=this.matrix[i][k]*other.matrix[k][j];
+                }
+            }
+        }
+        return matrix;
+    }
+
+    public Vector leftMultiply(Vector other){
+        colRowEquivalenceCheck(this,other);
+        double[] vector = new double[other.getDimensions()];
+        for(int i = 0;i<this.rows;i++){
+            for(int k = 0; k<other.getDimensions();k++){
+                vector[k] = this.matrix[i][k]*other.getIndex(k);
+            }
+        }
+        return new Vector(vector);
+    }
+
+    private static void equivalentMatrixCheck(Matrix m1, Matrix m2){
+        if(m1.rows!=m2.rows || m1.cols!=m2.cols){
+            throw new LinearAlgebraException("Invalid Matrix operation: matrices not of same size.\n " +
+                            "Matrix 1: rows: "+m1.rows+" cols: "+m1.cols+" Matrix 2: rows: "+m2.rows+" cols: "+m2.cols);
+        }
+    }
+
+    private static void colRowEquivalenceCheck(Matrix left, Matrix right){
+        if(left.cols!=right.rows){
+            throw new LinearAlgebraException("Invalid Matrix operation: left side cols does not equal right side rows. left cols: "+left.cols+" right rows: "+right.rows);
+        }
+    }
+    private static void colRowEquivalenceCheck(Matrix left, Vector right){
+        if(left.cols!=right.getDimensions()){
+            throw new LinearAlgebraException("Invalid Matrix operation: left side cols does not equal right side rows. left cols: "+left.cols+" right rows: "+right.getDimensions());
+        }
     }
 
 }
