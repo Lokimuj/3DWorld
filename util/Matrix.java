@@ -1,10 +1,13 @@
 package util;
 
-import org.omg.CORBA.MARSHAL;
+import java.util.Arrays;
 
 public class Matrix {
-    private double[][] matrix;
-    int rows, cols;
+
+    protected double[][] matrix;
+    protected int rows, cols;
+    protected int precision = Constants.DEFAULT_PRECISION;
+    protected boolean precisionActive = false;
 
     public Matrix(int rows, int cols){
         if(rows<=0 || cols<=0){
@@ -27,9 +30,21 @@ public class Matrix {
         this.rows = other.rows;
         this.cols = other.cols;
         this.matrix  = new double[rows][cols];
-        for(int i = 0;i<rows;i++){
+        for (int i = 0; i < rows; i++) {
             for(int j = 0; j<cols; j++){
                 this.matrix[i][j] = other.matrix[i][j];
+            }
+        }
+    }
+
+    public Matrix(double[][] matrix){
+
+        this.rows = matrix.length;
+        this.cols = matrix[0].length;
+        this.matrix = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for(int j = 0; j<cols; j++){
+                this.matrix[i][j] = matrix[i][j];
             }
         }
     }
@@ -72,6 +87,14 @@ public class Matrix {
         return matrix;
     }
 
+    public static Matrix constructIdentityMatrix(int dimensions){
+        Matrix result = new Matrix(dimensions);
+        for(int i = 0; i<dimensions; i++){
+            result.matrix[i][i] = 1;
+        }
+        return result;
+    }
+
 
     public static Matrix constructByXYRotation(double theta){
         Matrix result =  new Matrix(3);
@@ -101,12 +124,49 @@ public class Matrix {
         return result;
     }
 
+    public int getPrecision() {
+        return precision;
+    }
+
+    private void precisify(){
+        for(int i = 0; i<rows;i++){
+            for(int j = 0; j<cols;j++){
+                matrix[i][j] = precisifyValue(matrix[i][j]);
+            }
+        }
+    }
+
+    private double precisifyValue(double val){
+        return Math.round(val*Math.pow(10,precision))/Math.pow(10,precision);
+    }
+
+    public void setPrecision(int precision) {
+
+        if(precision<this.precision && precisionActive){
+            this.precision = precision;
+            precisify();
+        }else{
+            this.precision = precision;
+        }
+
+
+    }
+    public void setRestrictPrecision(boolean precisionActive){
+        this.precisionActive = precisionActive;
+        if(precisionActive){
+            precisify();
+        }
+    }
+
     public void addToThis(Matrix other){
         equivalentMatrixCheck(this,other);
         for(int i = 0; i<this.rows; i++){
             for(int j = 0;j<this.cols;j++){
                 this.matrix[i][j]+=other.matrix[i][j];
             }
+        }
+        if(precisionActive){
+            precisify();
         }
     }
 
@@ -122,6 +182,9 @@ public class Matrix {
                 matrix[i][j]*=scalar;
             }
         }
+        if(precisionActive){
+            precisify();
+        }
     }
 
     public Matrix scalarMultiple(double scalar){
@@ -136,6 +199,9 @@ public class Matrix {
             for(int j = 0 ;j<this.cols;j++){
                 this.matrix[i][j]-=other.matrix[i][j];
             }
+        }
+        if(precisionActive){
+            precisify();
         }
     }
 
@@ -162,29 +228,97 @@ public class Matrix {
         colRowEquivalenceCheck(this,other);
         double[] vector = new double[other.getDimensions()];
         for(int i = 0;i<this.rows;i++){
-            for(int k = 0; k<other.getDimensions();k++){
-                vector[k] = this.matrix[i][k]*other.getIndex(k);
+            for (int k = 0; k < other.getDimensions(); k++) {
+                vector[i] += this.matrix[i][k] * other.getIndex(k);
             }
         }
         return new Vector(vector);
     }
 
-    private static void equivalentMatrixCheck(Matrix m1, Matrix m2){
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("Matrix " + rows + "x" + cols + "\n");
+        for(int i = 0; i<rows; i++){
+            result.append("{");
+            for(int j = 0;j<cols;j++){
+                result.append("| ").append(matrix[i][j]).append(" |");
+            }
+            result.append("}\n");
+        }
+        return result.toString();
+    }
+
+    protected static void equivalentMatrixCheck(Matrix m1, Matrix m2){
         if(m1.rows!=m2.rows || m1.cols!=m2.cols){
             throw new LinearAlgebraException("Invalid Matrix operation: matrices not of same size.\n " +
                             "Matrix 1: rows: "+m1.rows+" cols: "+m1.cols+" Matrix 2: rows: "+m2.rows+" cols: "+m2.cols);
         }
     }
 
-    private static void colRowEquivalenceCheck(Matrix left, Matrix right){
+    @Override
+    public boolean equals(Object other){
+        if (!(other instanceof Matrix)){
+            return false;
+        }
+        Matrix real = (Matrix) other;
+        return this.rows == real.rows && this.cols == real.cols && Arrays.deepEquals(this.matrix, real.matrix);
+    }
+
+    @Override
+    public int hashCode(){
+        return Arrays.deepHashCode(this.matrix);
+    }
+
+    public Matrix solve(Matrix other){
+        return null;
+    }
+
+    public double determinant(){
+        squareMatrixCheck(this);
+        return this.determinantHelper();
+    }
+
+    protected double determinantHelper(){
+        int dim = this.rows;
+        if (dim == 2){
+            return this.matrix[0][0]*this.matrix[1][1] - this.matrix[0][1]*this.matrix[1][0];
+        }else if(dim == 1){
+            return matrix[0][0];
+        }
+        double sum = 0;
+        Matrix sub = new Matrix(dim-1);
+        for(int row = 1;row<rows;row++){
+            for(int col = 1; col<cols;col++){
+                sub.matrix[row-1][col-1] = matrix[row][col];
+            }
+        }
+        for(int i = 0; i<dim;i++){
+            if(matrix[0][i]!=0) {
+                sum +=  (i % 2 == 0 ? 1 : -1) * matrix[0][i] * sub.determinantHelper();
+            }
+            if(i!=dim-1){
+                for(int j = 0;j<rows-1;j++){
+                    sub.matrix[j][i] = matrix[j+1][i];
+                }
+            }
+        }
+        return sum;
+    }
+
+    protected static void colRowEquivalenceCheck(Matrix left, Matrix right){
         if(left.cols!=right.rows){
             throw new LinearAlgebraException("Invalid Matrix operation: left side cols does not equal right side rows. left cols: "+left.cols+" right rows: "+right.rows);
         }
     }
-    private static void colRowEquivalenceCheck(Matrix left, Vector right){
+    protected static void colRowEquivalenceCheck(Matrix left, Vector right){
         if(left.cols!=right.getDimensions()){
             throw new LinearAlgebraException("Invalid Matrix operation: left side cols does not equal right side rows. left cols: "+left.cols+" right rows: "+right.getDimensions());
         }
     }
 
+    protected static void squareMatrixCheck(Matrix matrix){
+        if(matrix.rows!=matrix.cols){
+            throw new LinearAlgebraException("Invalid Matrix operation: matrix needs to be square. Your matrix rows: "+matrix.rows+" cols: "+matrix.cols);
+        }
+    }
 }

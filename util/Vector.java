@@ -116,6 +116,7 @@ public class Vector {
     public Vector unit(){
         return this.scalarMultiple(1/magnitude());
     }
+
     public double magnitude(){
         double sum = 0;
         for(int i = 0; i < dimensions; i++){
@@ -145,19 +146,28 @@ public class Vector {
         return other.sub(this).magnitude();
     }
 
-    public boolean equals(Object other){
-        if(!(other instanceof Vector)){
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Vector)) {
             return false;
         }
         Vector real = (Vector) other;
-        if(this.dimensions != real.dimensions){
-            return false;
-        }
-        return Arrays.equals(this.vector,real.vector);
+        return this.dimensions == real.dimensions && Arrays.equals(this.vector, real.vector);
     }
 
     @Override
     public int hashCode() {
         return Arrays.hashCode(vector);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder resultBuilder = new StringBuilder("Vector{");
+        for(int i = 0; i<dimensions; i++){
+            resultBuilder.append("| ").append(vector[i]).append(" |");
+        }
+        String result = resultBuilder.toString();
+        result+="}";
+        return result;
     }
 }
