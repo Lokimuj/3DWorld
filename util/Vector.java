@@ -3,18 +3,24 @@ package util;
 import java.util.Arrays;
 
 public class Vector {
+
+    public static final Vector INVALID_VECTOR = new Vector();
+
     private double[] vector;
     private int dimensions;
+    private int precision = Constants.DEFAULT_PRECISION;
+    private boolean precisionActive = false;
+
     public Vector(double... args){
         dimensions = args.length;
-        if(dimensions <2){
-            throw new LinearAlgebraException("Vectors must be at least 2 long");
+        if(dimensions <1){
+            throw new LinearAlgebraException("Vectors must be at least 1 long");
         }
         vector = Arrays.copyOf(args, dimensions);
     }
     public Vector(int dimensions) throws LinearAlgebraException {
-        if(dimensions < 2){
-            throw new LinearAlgebraException("Vectors must be at least 2 long");
+        if(dimensions < 1){
+            throw new LinearAlgebraException("Vectors must be at least 1 long");
         }
         vector = new double[dimensions];
         this.dimensions = dimensions;
@@ -25,12 +31,10 @@ public class Vector {
     }
 
     public double getX() {
-
         return vector[0];
     }
 
     public double getY() {
-
         return vector[1];
     }
 
@@ -52,9 +56,44 @@ public class Vector {
         return dimensions;
     }
 
+    public int getPrecision() {
+        return precision;
+    }
+
+    private void precisify(){
+        for(int i = 0; i<dimensions;i++){
+            vector[i] = precisifyValue(vector[i]);
+        }
+    }
+
+    private double precisifyValue(double val){
+        return Math.round(val*Math.pow(10,precision))/Math.pow(10,precision);
+    }
+
+    public void setPrecision(int precision) {
+
+        if(precision<this.precision && precisionActive){
+            this.precision = precision;
+            precisify();
+        }else{
+            this.precision = precision;
+        }
+
+
+    }
+    public void setRestrictPrecision(boolean precisionActive){
+        this.precisionActive = precisionActive;
+        if(precisionActive){
+            precisify();
+        }
+    }
+
     public void scalarMultiplyThis(double scalar){
         for(int i = 0; i< dimensions; i++){
             vector[i]*=scalar;
+        }
+        if(precisionActive){
+            precisify();
         }
     }
 
@@ -79,7 +118,7 @@ public class Vector {
             throw new LinearAlgebraException("Vectors must both be of dimensions 3 to be crossed. This: "+this.dimensions +", other: "+other.dimensions);
         }
         return new Vector(this.vector[1]*other.vector[2]-this.vector[2]*other.vector[1],
-                            -1*(this.vector[0]*other.vector[2]-this.vector[2]*other.vector[1]),
+                            -1*(this.vector[0]*other.vector[2]-this.vector[2]*other.vector[0]),
                             this.vector[0]*other.vector[1]-this.vector[1]*other.vector[0]);
     }
     public void addToThis(Vector other){
@@ -88,6 +127,9 @@ public class Vector {
         }
         for(int i = 0; i < dimensions; i++){
             this.vector[i]+=other.vector[i];
+        }
+        if(precisionActive){
+            precisify();
         }
     }
     public Vector add(Vector other){
@@ -113,6 +155,27 @@ public class Vector {
         result.subFromThis(other);
         return result;
     }
+
+    public void scalarAddToThis(double scalar, Vector other){
+        Vector multiple = other.scalarMultiple(scalar);
+        addToThis(multiple);
+    }
+
+    public Vector scalarAdd(double scalar, Vector other){
+        Vector multiple = other.scalarMultiple(scalar);
+        return add(multiple);
+    }
+
+    public void scalarSubFromThi(double scalar, Vector other){
+        Vector multiple = other.scalarMultiple(-1*scalar);
+        addToThis(multiple);
+    }
+
+    public Vector scalarSub(double scalar,Vector other){
+        Vector multiple = other.scalarMultiple(-1*scalar);
+        return add(multiple);
+    }
+
     public Vector unit(){
         return this.scalarMultiple(1/magnitude());
     }
@@ -144,6 +207,23 @@ public class Vector {
 
     public double distanceTo(Vector other){
         return other.sub(this).magnitude();
+    }
+
+    public static Vector average(Vector... vectors){
+        if(vectors.length<1){
+            throw new LinearAlgebraException("average: need at least one vector to calculate an average");
+        }
+        int dim = vectors[0].dimensions;
+        Vector sum = new Vector(dim);
+        for(int i = 0; i<vectors.length; i++) {
+            Vector vector = vectors[i];
+            if (vector.getDimensions() != dim) {
+                throw new LinearAlgebraException("average: vectors must not be jagged. Some vectors were not of equal dimensions");
+            }
+            sum.addToThis(vector);
+        }
+        sum.scalarMultiplyThis(1/vectors.length);
+        return sum;
     }
 
     @Override

@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 public class Matrix {
 
+    public static final Matrix INVALID_MATRIX = new Matrix(1);
+
     protected double[][] matrix;
     protected int rows, cols;
     protected int precision = Constants.DEFAULT_PRECISION;
@@ -124,6 +126,26 @@ public class Matrix {
         return result;
     }
 
+    public Vector[] toRows(){
+        Vector[] result = new Vector[rows];
+        for(int i = 0;i<rows;i++){
+            result[i] = new Vector(matrix[i]);
+        }
+        return result;
+    }
+
+    public Vector[] toCols(){
+        Vector[] result = new Vector[cols];
+        for(int i = 0; i<cols;i++){
+            double[] vector = new double[rows];
+            for(int j = 0;j<rows;j++){
+                vector[j] = matrix[j][i];
+            }
+            result[i] = new Vector(vector);
+        }
+        return result;
+    }
+
     public int getPrecision() {
         return precision;
     }
@@ -234,6 +256,29 @@ public class Matrix {
         }
         return new Vector(vector);
     }
+
+//    public Matrix solve(Matrix other){
+//        if(this.rows!=other.rows){
+//            throw new LinearAlgebraException("Solving a matrix requires the same amount of rows on both sides. This rows: "+rows+" other rows: "+other.rows);
+//        }
+//
+//    }
+//
+//    private Matrix solveSquare(Matrix other){
+//        return null;
+//    }
+//
+//    private Matrix solveNonSquare(Matrix other){
+//        Vector[] left = this.toRows();
+//        Vector[] right = other.toRows();
+//        int i = 0;
+//        for(; i<rows&&i<cols;i++){
+//            if(left[i].getIndex(i)==0){
+//                boolean found = false;
+//                for(int j = i+)
+//            }
+//        }
+//    }
 
     @Override
     public String toString() {

@@ -1,6 +1,7 @@
 import util.Matrix;
 import util.Vector;
 
+import java.awt.*;
 import java.time.Instant;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,7 +14,7 @@ public class CodeTest {
         System.out.println(matrix);
         Vector vector = new Vector(1,1,1);
         Instant before = Instant.now();
-        for(int i = 0; i<10000000;i++) {
+        for(int i = 0; i<1000000000;i++) {
             vector = matrix.leftMultiply(vector);
         }
         Instant after = Instant.now().minusMillis(before.toEpochMilli());
@@ -37,7 +38,22 @@ public class CodeTest {
         System.out.println(matrix1.leftMultiply(vector));
     }
 
+    public static void test4(){
+        Matrix ninety = Matrix.constructByXYRotation(Math.PI/7.62);
+        Matrix r1;
+        Vector a = new Vector(1.000000123213,2.321424141412,3.4535324132412);
+        Vector b = ninety.leftMultiply(a);
+        Vector c = b.cross(a);
+        Vector d = b.cross(b);
+        System.out.println(a.dot(c));
+        System.out.println(d);
+        System.out.println(d.magnitude());
+    }
+
+    public static void guiTest(){
+    }
+
     public static void main(String[] args) {
-        test3();
+        test4();
     }
 }
