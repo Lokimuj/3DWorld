@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Vector {
 
-    public static final Vector INVALID_VECTOR = new Vector();
+    public static final Vector INVALID_VECTOR = new Vector(1);
 
     private double[] vector;
     private int dimensions;
@@ -222,7 +222,7 @@ public class Vector {
             }
             sum.addToThis(vector);
         }
-        sum.scalarMultiplyThis(1/vectors.length);
+        sum.scalarMultiplyThis(1.0/vectors.length);
         return sum;
     }
 

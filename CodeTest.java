@@ -1,24 +1,25 @@
 import util.Matrix;
 import util.Vector;
 
+import java.applet.Applet;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class CodeTest {
+public class CodeTest{
 
     public static void test(){
         double[][] thing = new double[][]{new double[]{1,-2,1,4},new double[]{1,1,0,3},new double[]{0,1,1,3},new double[]{0,0,0,1}};
-        Matrix matrix = Matrix.constructByXYRotation(Math.PI/3).leftMultiply(Matrix.constructByYZRotation(Math.PI));
+        Matrix matrix = Matrix.constructByXYRotation(Math.PI/3);
+        matrix.setRestrictPrecision(true);
         System.out.println(matrix);
         Vector vector = new Vector(1,1,1);
         Instant before = Instant.now();
-        for(int i = 0; i<1000000000;i++) {
+        for(int i = 0; i<6;i++) {
             vector = matrix.leftMultiply(vector);
         }
-        Instant after = Instant.now().minusMillis(before.toEpochMilli());
-        System.out.println(after.toEpochMilli()+" milli seconds");
+        System.out.println(vector);
     }
 
     public static void test2(){
@@ -51,9 +52,38 @@ public class CodeTest {
     }
 
     public static void guiTest(){
+        System.setProperty("sun.awt.noerasebackground", "true");
+        Polygon tri = new Polygon(new int[]{1,20,30},new int[]{3,2,50},3);
+        Canvas canvas = new Canvas();
+
+        canvas.setBounds(0,0,GTest.DEFAULT_WIDTH,GTest.DEFAULT_HEIGHT);
+        canvas.setVisible(true);
+        Frame frame = new Frame();
+        GTest gTest = new GTest();
+        frame.add(gTest);
+        frame.setSize(GTest.DEFAULT_WIDTH,GTest.DEFAULT_HEIGHT);
+        frame.setLayout(null);
+        frame.setVisible(true);
+        long start = Instant.now().toEpochMilli();
+        while(true){
+            gTest.rotate();
+            gTest.repaint();
+            long now = Instant.now().toEpochMilli();
+            if(now-start<16){
+                try {
+                    Thread.sleep(16-(now-start));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            start = now;
+        }
+//        Timer timer = new Timer();
+//        TimeThing timeThing = new TimeThing(gTest);
+//        timer.scheduleAtFixedRate(timeThing,0,16);
     }
 
     public static void main(String[] args) {
-        test4();
+        guiTest();
     }
 }
