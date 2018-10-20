@@ -1,14 +1,15 @@
 import util.Matrix;
 import util.Vector;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
 public class Shape3D implements Iterable<SuperTriangle>{
+
     SuperTriangle[] triangles;
     Vector center;
+
     public Shape3D(Vector ... vectors){
         assert vectors.length == 4;
         triangles = new SuperTriangle[4];

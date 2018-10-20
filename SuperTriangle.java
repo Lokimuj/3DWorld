@@ -5,9 +5,9 @@ import util.Vector;
 import java.awt.*;
 
 public class SuperTriangle extends Triangle {
-    private Vector normal;
+    private Vector normal; //Unit vector that points where this triangle is facing
     private Color color;
-    private boolean isVisible;
+    private boolean isVisible; //Uhh not sure what this was for
     public Polygon polygon;
     int r = 225;
     int g = 0;
@@ -72,6 +72,9 @@ public class SuperTriangle extends Triangle {
         return normal;
     }
 
+    /**
+     * Does 'lighting' by darkening the color more the more the shape is facing down
+     */
     private void updateColor(){
         double dot = normal.dot(new Vector(0,0,1));
 

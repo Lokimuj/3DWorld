@@ -11,7 +11,7 @@ import java.util.Timer;
 public class GTest extends Canvas implements ImageObserver {
 
     public static final int DEFAULT_HEIGHT = 1300;
-    public static final int DEFAULT_WIDTH = 1300;
+    public static final int DEFAULT_WIDTH = 2400;
 
     private long time;
     Shape3D shape; //The tetrahedron I'm drawing
@@ -24,7 +24,7 @@ public class GTest extends Canvas implements ImageObserver {
 
     public GTest(){
         super();
-        setBackground(Color.BLACK); // For that immersive outer-space look yknow
+        setBackground(Color.DARK_GRAY); // For that immersive outer-space look yknow
         shape = new Shape3D(new Vector(0,5,0),new Vector(-2.5,10,0),new Vector(2.5,10,0),
                             new Vector(0,10,5));
 
@@ -53,9 +53,14 @@ public class GTest extends Canvas implements ImageObserver {
         }
         g2.drawImage(bi,0,0,this);
     }
+
+    /**
+     * Used to update the image.
+     * Better idea might be to make this threaded and split up this code into model-view classes
+     */
     public void rotate(){
-        shape.translate(new Vector(0,.03,0));
-        shape.rotate(rotate);
-        focus.turn();
+        shape.translate(new Vector(0,.03,0)); //Makeshift velocity here, moving away from the camera
+        shape.rotate(rotate); //Rotating the shape
+        focus.turn(); //Rotating/turning the camera
     }
 }

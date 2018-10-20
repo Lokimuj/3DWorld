@@ -25,6 +25,7 @@ public class CodeTest{
     public static void test2(){
         double x = 1;
         x*=Math.pow(10,-323); //woah this shit is fucky
+                              //and I am professional
         System.out.println(x);
         x/=Math.pow(10,10);
         System.out.println(x);
@@ -51,9 +52,12 @@ public class CodeTest{
         System.out.println(d.magnitude());
     }
 
+
+    /**
+     * The actual important method where things get done
+     */
     public static void guiTest(){
         System.setProperty("sun.awt.noerasebackground", "true");
-        Polygon tri = new Polygon(new int[]{1,20,30},new int[]{3,2,50},3);
         Canvas canvas = new Canvas();
 
         canvas.setBounds(0,0,GTest.DEFAULT_WIDTH,GTest.DEFAULT_HEIGHT);
