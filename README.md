@@ -4,3 +4,4 @@ A small programming and math exercise I gave myself. All the mathematical concep
 
 This is a basic 3D engine made using java awt, with simple lighting. Currently when CodeTest.java is run, a rotating tetrahedron with randomly colored faces moves away from the camera slowly.
 
+Shouldn't require anything special to compile, I just use plain old intellij java compiling to run it.
