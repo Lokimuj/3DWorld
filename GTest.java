@@ -24,7 +24,7 @@ public class GTest extends Canvas implements ImageObserver {
 
     public GTest(){
         super();
-        setBackground(Color.DARK_GRAY); // For that immersive outer-space look yknow
+        setBackground(Color.BLACK); // For that immersive outer-space look yknow
         shape = new Shape3D(new Vector(0,5,0),new Vector(-2.5,10,0),new Vector(2.5,10,0),
                             new Vector(0,10,5));
 
