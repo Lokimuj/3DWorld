@@ -23,9 +23,7 @@ public class Triangle {
 
     public void rotate(Matrix rotation){
         Vector center = Vector.average(points);
-        for(int i = 0;i<3;i++){
-            points[i] = center.add(rotation.leftMultiply(points[i].sub(center)));
-        }
+        rotate(rotation,center);
     }
 
     public void rotate(Matrix rotation, Vector origin){

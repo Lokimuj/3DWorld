@@ -3,7 +3,6 @@ package repr.camera;
 import repr.shapes.SuperTriangle;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class BlindCamera extends CameraDecorator {
 
